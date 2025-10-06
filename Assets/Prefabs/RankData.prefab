@@ -80,7 +80,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerData:
-    playerName: 2
+    playerName: 
     rankNumber: 0
     playerScore: 0
     profileImage: {fileID: 0}

@@ -11,13 +11,13 @@ public class RankUIManager : MonoBehaviour
 
     public List<PlayerData> playerDatas = new List<PlayerData>();
     public List<GameObject> createdPlayerDatas = new List<GameObject>();
-
     public RankData youRankData;
-    private void Start()
+
+    void Start()
     {
-        CreateRankData();
+        CreatreRankData();
     }
-    public void CreateRankData()
+    public void CreatreRankData()
     {
         for (int i = 0; i < playerDatas.Count; i++)
         {
@@ -67,6 +67,6 @@ public class RankUIManager : MonoBehaviour
     {
         ClearRankData();
         SortRankData();
-        CreateRankData();
+        CreatreRankData();
     }
 }

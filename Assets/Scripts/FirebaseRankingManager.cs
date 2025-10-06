@@ -4,12 +4,11 @@ using System.Collections.Generic;
 using Proyecto26;
 using SimpleJSON;
 using System.Linq;
-using NUnit.Framework.Constraints;
 
 public class FirebaseRankingManager : MonoBehaviour
 {
-    public const string url = "https://lbweek06-default-rtdb.asia-southeast1.firebasedatabase.app/";
-    public const string secret = "VfrAdMlgyhqLpnDi2nD28mE4GaAPDyTJQ4p1dP4C";
+    public const string url = "https://gi331database-default-rtdb.asia-southeast1.firebasedatabase.app/";
+    public const string secret = "fy2px1CkDfpY3I6yquKzMnYcUQ8VmWOr7IqjD9Lb";
 
     [Header("Main")]
     public RankUIManager rankUIManager;
@@ -22,8 +21,20 @@ public class FirebaseRankingManager : MonoBehaviour
 
     [Header("New Data")]
     public PlayerData currentPlayerData;
-
     private List<PlayerData> sortPlayerDatas = new List<PlayerData>();
+    #region Stat
+    void Start()
+    {
+        //DebugSetupWithLocalData();
+        // TestSetData();
+        // TestGetData();
+        // TestSetData2();
+        // TestGetData2();
+        //SetLocalDataToDatabase();
+        ReloadSortingData();
+    }
+    #endregion
+
 
     [Header("Test")]
     public int testNum;
@@ -34,17 +45,6 @@ public class FirebaseRankingManager : MonoBehaviour
         public string name = "name";
     }
     public TestData testData = new TestData();
-
-    private void Start()
-    {
-        //DebugSetupWithLocalData();
-        //TestSetData();
-        //TestGetData();
-        //TestSetData2();
-        //TestGetData2();
-        //SetLocalDataToDatabase();
-        ReloadSortingData();
-    }
     public void CalculateRankFromScore()
     {
         sortPlayerDatas = ranking.playerDatas.OrderByDescending(data => data.playerScore).ToList();
@@ -58,6 +58,7 @@ public class FirebaseRankingManager : MonoBehaviour
         CalculateRankFromScore();
     }
     #region Test Functions
+
     public void TestSetData()
     {
         string urlData = $"{url}.json?auth={secret}";
@@ -66,22 +67,25 @@ public class FirebaseRankingManager : MonoBehaviour
             Debug.Log("Upload Data Complete");
         }).Catch(error =>
         {
-            Debug.Log($"error on set to server {error}");
+            Debug.Log($"Error on set to server {error}");
         });
     }
+
     public void TestGetData()
     {
-        string urlData = $"{url}.json?auth{secret}";
+        string urlData = $"{url}.json?auth={secret}";
         RestClient.Get(urlData).Then(response =>
         {
             Debug.Log(response.Text);
             JSONNode jsonNode = JSONNode.Parse(response.Text);
+
+            testNum = jsonNode["num"];
+
         }).Catch(error =>
         {
             Debug.Log(error);
         });
     }
-
     public void TestSetData2()
     {
         string urlData = $"{url}TestData.json?auth={secret}";
@@ -90,16 +94,20 @@ public class FirebaseRankingManager : MonoBehaviour
             Debug.Log("Upload Data Complete");
         }).Catch(error =>
         {
-            Debug.Log($"error on set to server {error}");
+            Debug.Log($"Error on set to server {error}");
         });
     }
+
     public void TestGetData2()
     {
-        string urlData = $"{url}TestData.json?auth{secret}";
+        string urlData = $"{url}TestData.json?auth={secret}";
         RestClient.Get(urlData).Then(response =>
         {
             Debug.Log(response.Text);
             JSONNode jsonNode = JSONNode.Parse(response.Text);
+
+            testNum = jsonNode["num"];
+
         }).Catch(error =>
         {
             Debug.Log(error);
@@ -118,41 +126,32 @@ public class FirebaseRankingManager : MonoBehaviour
             Debug.Log(error);
         });
     }
-
     public void AddData()
     {
         string urlData = $"{url}ranking/playerDatas.json?auth={secret}";
-        
         RestClient.Get(urlData).Then(response =>
         {
             Debug.Log(response.Text);
             JSONNode jsonNode = JSONNode.Parse(response.Text);
 
             string urlPlayerData = $"{url}ranking/playerDatas/{jsonNode.Count}.json?auth={secret}";
-
             RestClient.Put<PlayerData>(urlPlayerData, currentPlayerData).Then(response =>
             {
-                Debug.Log("Upload Data Complete");
+                Debug.Log("Upload!");
             }).Catch(error =>
             {
                 Debug.Log(error);
             });
-        }).Catch(error =>
-        {
-            Debug.Log(error);
         });
     }
-
     public void FindYourDataInRanking()
     {
         rankUIManager.youRankData.playerData = ranking.playerDatas.Where(data => data.playerName == currentPlayerData.playerName).FirstOrDefault();
         rankUIManager.youRankData.UpdateData();
     }
-
     public void ReloadSortingData()
     {
         string urlData = $"{url}ranking/playerDatas.json?auth={secret}";
-
         RestClient.Get(urlData).Then(response =>
         {
             Debug.Log(response.Text);
@@ -165,14 +164,12 @@ public class FirebaseRankingManager : MonoBehaviour
             {
                 ranking.playerDatas.Add(new PlayerData(jsonNode[i]["rankNumber"], jsonNode[i]["playerName"], jsonNode[i]["playerScore"], null));
             }
-
             CalculateRankFromScore();
 
             string urlPlayerData = $"{url}ranking.json?auth={secret}";
-
             RestClient.Put<Ranking>(urlPlayerData, ranking).Then(response =>
             {
-                Debug.Log("Upload Data Complete");
+                Debug.Log("Upload!");
                 rankUIManager.playerDatas = ranking.playerDatas;
                 rankUIManager.ReloadRankData();
                 FindYourDataInRanking();
@@ -185,11 +182,9 @@ public class FirebaseRankingManager : MonoBehaviour
             Debug.Log(error);
         });
     }
-
     public void AddDataWithSorting()
     {
         string urlData = $"{url}ranking/playerDatas.json?auth={secret}";
-
         RestClient.Get(urlData).Then(response =>
         {
             Debug.Log(response.Text);
@@ -215,11 +210,10 @@ public class FirebaseRankingManager : MonoBehaviour
 
             CalculateRankFromScore();
 
-            string urlPLayerData = $"{url}ranking.json?auth={secret}";
-
-            RestClient.Put<Ranking>(urlPLayerData, ranking).Then(response =>
+            string urlPlayerData = $"{url}ranking.json?auth={secret}";
+            RestClient.Put<Ranking>(urlPlayerData, ranking).Then(response =>
             {
-                Debug.Log("Upload Data Complete");
+                Debug.Log("Upload!");
                 rankUIManager.playerDatas = ranking.playerDatas;
                 rankUIManager.ReloadRankData();
                 FindYourDataInRanking();
